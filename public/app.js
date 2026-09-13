@@ -610,6 +610,7 @@ function renderUsage() {
     h('div', {},
       h('h1', {}, 'Usage'),
       h('p', { class: 'lede' }, 'Tokens are counted from every response, including subagents, on the day they happened. Dollar cost appears only where Claude Code recorded it, as a total for the whole session.')),
+    h('a', { class: 'button secondary', href: `/api/usage.csv?days=${state.usageDays}`, download: `usage-${state.usageDays}d.csv` }, 'Download CSV'),
     h('div', { class: 'segmented usage-range', role: 'tablist', 'aria-label': 'Time range' },
       USAGE_RANGES.map(([days, label]) => h('button', { type: 'button', role: 'tab', 'aria-selected': String(state.usageDays === days), dataset: { usageDays: String(days) } }, label))));
   if (!u) return h('div', { class: 'usage' }, head, h('p', { class: 'muted' }, 'Loading usage…'));

@@ -196,6 +196,13 @@ export async function startServer({
         const days = [1, 7, 14, 30].includes(Number(url.searchParams.get('days'))) ? Number(url.searchParams.get('days')) : 14;
         return json(res, 200, { now: Date.now(), ...store.usage({ days }) });
       }
+      if (url.pathname === '/api/usage.csv') {
+        const days = [1, 7, 14, 30].includes(Number(url.searchParams.get('days'))) ? Number(url.searchParams.get('days')) : 14;
+        const csv = (value) => `"${String(value).replaceAll('"', '""')}"`;
+        const usage = store.usage({ days });
+        const rows = ['day,output_tokens,input_tokens', ...usage.perDay.map((d) => [d.day, d.output, d.input].map(csv).join(','))];
+        return send(res, 200, rows.join('\n') + '\n', 'text/csv; charset=utf-8', { 'Content-Disposition': `attachment; filename="usage-${days}d.csv"` });
+      }
       if (url.pathname === '/api/activity') {
         const limit = Math.min(Math.max(Number(url.searchParams.get('limit')) || 100, 1), 300);
         return json(res, 200, { now: Date.now(), items: store.activity({ limit }) });

@@ -260,6 +260,13 @@ test('usage counts each response once, includes subagents, and groups by day, pr
   assert.equal((await (await fetch(`${base}/api/usage?days=999`)).json()).days, 14, 'unknown ranges fall back to 14');
 });
 
+test('usage CSV exports the selected range with escaped fields', async () => {
+  const res = await fetch(`${base}/api/usage.csv?days=14`);
+  assert.equal(res.status, 200);
+  assert.match(res.headers.get('content-type'), /text\/csv/);
+  assert.equal((await res.text()).split('\n')[0], 'day,output_tokens,input_tokens');
+});
+
 test('session detail includes its own token totals, subagents included', async () => {
   const s = await sessionByTitle('Checkout flow redesign');
   const { session } = await (await fetch(`${base}/api/sessions/${s.id}`)).json();
