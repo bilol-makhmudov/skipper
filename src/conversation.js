@@ -1,11 +1,13 @@
 // The readable conversation of a session: what you said, what Claude said, and
-// which tools ran in between. Only the tail of the transcript is read, so long
+// which tools ran in between and what each one touched. Only the tail of the transcript is read, so long
 // sessions stay cheap to open.
 
 import { promises as fs } from 'node:fs';
+import { toolTarget } from './transcript.js';
 
 export const TEXT_LIMIT = 8000;
 const TAIL_BYTES = 4 * 1024 * 1024;
+const MAX_CALLS = 20;
 
 const toMs = (timestamp) => {
   const ms = Date.parse(timestamp);
@@ -49,12 +51,14 @@ export function buildConversation(records, { limit = 60 } = {}) {
         }
       } else if (block?.type === 'tool_use' && typeof block.name === 'string') {
         const last = items[items.length - 1];
+        const call = { name: block.name, target: toolTarget(block.input) };
         if (last?.role === 'tools') {
           last.count += 1;
           if (!last.names.includes(block.name) && last.names.length < 6) last.names.push(block.name);
+          if (last.calls.length < MAX_CALLS) last.calls.push(call);
           last.at = at ?? last.at;
         } else {
-          items.push({ role: 'tools', names: [block.name], count: 1, at });
+          items.push({ role: 'tools', names: [block.name], calls: [call], count: 1, at });
         }
       }
     }

@@ -163,10 +163,13 @@ class SessionDetail {
 
 /// One item in a session's readable conversation.
 class ConversationItem {
-  const ConversationItem({required this.role, this.text = '', this.names = const [], this.count = 0, this.at, this.clipped = false});
+  const ConversationItem({required this.role, this.text = '', this.names = const [], this.calls = const [], this.count = 0, this.at, this.clipped = false});
   final String role; // user | assistant | tools
   final String text;
   final List<String> names;
+
+  /// Each call in a tool run with what it touched, such as (`Read`, `src/cart.js`). The server lists up to 20.
+  final List<(String, String?)> calls;
   final int count;
   final int? at;
 
@@ -179,6 +182,10 @@ class ConversationItem {
       role: json['role'] as String,
       text: _as<String>(json['text']) ?? '',
       names: [for (final n in _as<List>(json['names']) ?? const []) if (n is String) n],
+      calls: [
+        for (final call in _as<List>(json['calls']) ?? const [])
+          if (call is Map && call['name'] is String) (call['name'] as String, _as<String>(call['target'])),
+      ],
       count: _int(json['count']) ?? 0,
       at: _int(json['at']),
       clipped: json['clipped'] == true,

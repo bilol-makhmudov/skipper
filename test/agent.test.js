@@ -68,9 +68,9 @@ test('conversation keeps what was said and folds tool runs together', () => {
     { type: 'user', timestamp: at(1), message: { content: 'Find the bug' } },
     { type: 'user', timestamp: at(1), isMeta: true, message: { content: 'meta' } },
     { type: 'user', timestamp: at(1), message: { content: [{ type: 'text', text: '<command-message>loop</command-message>' }] } },
-    { type: 'assistant', timestamp: at(2), message: { id: 'm1', content: [{ type: 'tool_use', name: 'Grep', input: {} }] } },
+    { type: 'assistant', timestamp: at(2), message: { id: 'm1', content: [{ type: 'tool_use', name: 'Grep', input: { pattern: 'checkout' } }] } },
     { type: 'user', timestamp: at(2), message: { content: [{ type: 'tool_result', tool_use_id: 't', content: 'x' }] } },
-    { type: 'assistant', timestamp: at(3), message: { id: 'm2', content: [{ type: 'tool_use', name: 'Read', input: {} }] } },
+    { type: 'assistant', timestamp: at(3), message: { id: 'm2', content: [{ type: 'tool_use', name: 'Read', input: { file_path: 'src/cart.js' } }] } },
     { type: 'assistant', timestamp: at(3), message: { id: 'm2', content: [{ type: 'tool_use', name: 'Read', input: {} }] } },
     { type: 'assistant', timestamp: at(4), message: { id: 'm3', content: [{ type: 'text', text: 'Found it.' }] } },
     { type: 'assistant', timestamp: at(4), message: { id: 'm3', content: [{ type: 'text', text: 'Fixed.' }] } },
@@ -79,7 +79,16 @@ test('conversation keeps what was said and folds tool runs together', () => {
   assert.deepEqual(items.map((i) => i.role), ['user', 'tools', 'assistant']);
   assert.deepEqual(items[1].names, ['Grep', 'Read']);
   assert.equal(items[1].count, 3);
+  assert.deepEqual(items[1].calls, [{ name: 'Grep', target: 'checkout' }, { name: 'Read', target: 'src/cart.js' }, { name: 'Read', target: null }]);
   assert.equal(items[2].text, 'Found it.\n\nFixed.');
+});
+
+test('a long tool run keeps its count but lists only the first calls', () => {
+  const records = Array.from({ length: 25 }, (_, i) => ({ type: 'assistant', message: { id: `m${i}`, content: [{ type: 'tool_use', name: 'Bash', input: { command: `step ${i}\nsecond line` } }] } }));
+  const [run] = conversationFromRecords(records);
+  assert.equal(run.count, 25);
+  assert.equal(run.calls.length, 20);
+  assert.deepEqual(run.calls[0], { name: 'Bash', target: 'step 0' });
 });
 
 test('a shortened message says so, and dropped items are counted', () => {

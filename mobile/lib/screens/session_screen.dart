@@ -379,8 +379,16 @@ class _ConversationList extends StatelessWidget {
               alignment: Alignment.centerLeft,
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                decoration: BoxDecoration(borderRadius: BorderRadius.circular(999), border: Border.all(color: c.border)),
-                child: Text('${item.names.join(', ')} · ${item.count} tool${item.count == 1 ? '' : 's'}', style: TextStyle(color: c.muted, fontSize: 12.5)),
+                decoration: BoxDecoration(borderRadius: BorderRadius.circular(item.calls.isEmpty ? 999 : 12), border: Border.all(color: c.border)),
+                child: item.calls.isEmpty
+                    ? Text('${item.names.join(', ')} · ${item.count} tool${item.count == 1 ? '' : 's'}', style: TextStyle(color: c.muted, fontSize: 12.5))
+                    : Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          for (final (name, target) in item.calls) Text(target == null ? name : '$name  $target', maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(color: c.muted, fontSize: 12.5)),
+                          if (item.count > item.calls.length) Text('+ ${item.count - item.calls.length} more', style: TextStyle(color: c.muted, fontSize: 12.5)),
+                        ],
+                      ),
               ),
             ),
           _ => Align(alignment: Alignment.centerLeft, child: _ClippableText(text: item.text, clipped: item.clipped, style: const TextStyle(height: 1.5))),

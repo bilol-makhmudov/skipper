@@ -74,10 +74,15 @@ function applyNotification(s, text, at) {
   if (result) target.result = result;
 }
 
+export function toolTarget(input) {
+  if (!input || typeof input !== 'object') return null;
+  const target = input.file_path || input.notebook_path || input.command || input.pattern || input.url || input.query || input.description || input.skill || null;
+  return typeof target === 'string' ? clip(target.split('\n')[0], 160) : null;
+}
+
 function applyToolUse(s, block, at) {
   const input = block.input || {};
-  const target = input.file_path || input.notebook_path || input.command || input.pattern || input.url || input.query || input.description || input.skill || null;
-  s.lastTool = { id: block.id, name: block.name, at, target: typeof target === 'string' ? clip(target.split('\n')[0], 160) : null, pending: true };
+  s.lastTool = { id: block.id, name: block.name, at, target: toolTarget(block.input), pending: true };
   if (block.name === 'AskUserQuestion' && Number.isFinite(at)) {
     s.askedAt.push(at);
     if (s.askedAt.length > 50) s.askedAt.shift();
