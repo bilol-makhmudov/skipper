@@ -106,7 +106,9 @@ Skipper prints a link with an access token for every network address. Open it on
 
 To keep it reachable in the background, install the service with `skipper service install --host 0.0.0.0`.
 
-**iPhone app.** The Flutter app in [`mobile/`](mobile/) pairs by scanning the QR code from the dashboard's phone button, and adds a hands-free voice assistant for your sessions in English or Uzbek. Tap the mic once and talk: it listens continuously, answers aloud, and stops as soon as you talk over it. Nothing it drafts is sent to a session until you say yes (or tap Send). Voice is optional. Skipper uses free local voice automatically when `whisper-cli` (whisper.cpp), the `ggml-large-v3-turbo-q5_0.bin` model in `~/.skipper/models` and `edge-tts` in `~/.skipper/voice-venv` are installed; otherwise run `skipper voice setup --region <azure-region>` for Azure AI Speech.
+**iPhone app.** The Flutter app in [`mobile/`](mobile/) pairs by scanning the QR code from the dashboard's phone button, and adds a hands-free voice assistant for your sessions in English or Uzbek. Tap the mic once and talk: it listens continuously, answers aloud, and stops as soon as you talk over it. Nothing it drafts is sent to a session until you say yes (or tap Send). Conversations show each tool call with the file, command or pattern it touched, not just the tool's name.
+
+Voice is optional. Skipper uses free local voice automatically when `whisper-cli` (whisper.cpp) and `ffmpeg` are on your `PATH` (or in Homebrew's folders on macOS), the `ggml-large-v3-turbo-q5_0.bin` model is in `~/.skipper/models`, and `edge-tts` is in `~/.skipper/voice-venv` or on your `PATH`. This works on Windows too. Otherwise run `skipper voice setup --region <azure-region>` for Azure AI Speech. `skipper voice status` shows which engine is active, where it looked, and what is missing.
 
 ## Never miss a permission prompt
 
@@ -148,8 +150,12 @@ System, Light, Dark, **Midnight** (true black for OLED screens), **Paper** (warm
 | `--read-only` | off | Disable messages, notes and task edits |
 | `--demo` | off | Serve fictional sample sessions |
 | `-o, --open` | off | Open the dashboard in your browser |
+| `--log-dir <dir>` | | Write output to `out.log` and `err.log` in `<dir>` (used by the background service) |
 | `hooks install` / `uninstall` / `status` | | Manage the permission and turn-finished alerts |
 | `hooks native on` / `off` | off | System notifications for permission prompts, even with no dashboard open |
+| `service install` / `uninstall` / `status` | | Run Skipper in the background and start it at login |
+| `voice status` / `setup --region <r>` / `off` | | Show the active voice engine, or turn Azure voice on or off |
+| `pair reset` | | Issue a new network access token, signing out paired devices |
 | `doctor` | | Check that hooks, notifications, the service and the dashboard are working |
 
 ### Keep it running in the background

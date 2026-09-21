@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Conversations show what each tool call touched (`Read src/cart.js`, `Bash npm test`) instead of only the tool names. The API adds a `calls` list to each tool run, up to 20 per run.
+- `skipper voice status` says which voice engine is active, where it looked for the local tools and which ones are missing. Contributed by @adnandispatch9-jpg.
+- Local voice finds `whisper-cli`, `ffmpeg` and `edge-tts` on your `PATH`, including on Windows.
+
 ## 0.6.0 (2026-09-17)
 
 - Published to npm as **`skipper-cc`** (`skipper` belongs to an unrelated package). `npx skipper-cc` now works with no git clone; the command is still `skipper`.
